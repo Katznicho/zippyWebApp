@@ -16,6 +16,8 @@ use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
+use Filament\Forms\Components\Select;
 
 class UserResource extends Resource
 {
@@ -29,36 +31,51 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
-                Forms\Components\TextInput::make('role')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('user'),
-                Forms\Components\TextInput::make('phone_number')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('otp')
-                    ->maxLength(255),
-                Forms\Components\DateTimePicker::make('otp_send_time'),
-                Forms\Components\Toggle::make('is_admin')
-                    ->required(),
-                Forms\Components\Toggle::make('is_user_verified')
-                    ->required(),
-                Forms\Components\TextInput::make('lat')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('long')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
+
+                Forms\Components\Section::make('Create a new user')
+                    ->description('Add a new user to the system.')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->unique()
+                            ->required()
+                            ->maxLength(255),
+                        // Forms\Components\DateTimePicker::make('email_verified_at'),
+                        Select::make('role')
+                            ->options([
+                                'User' => 'User',
+                                'Agent' => 'Agent',
+                                'Property Owner' => 'Property Owner',
+                                'Admin' => 'Admin',
+                            ])
+                            ->native(false)
+                            ->label('Role')
+                            ->searchable(),
+
+                        PhoneInput::make('phone')
+                            ->label('Phone Number')
+                            ->required()
+                            ->unique()
+                            ->defaultCountry('UG'),
+
+                        // Forms\Components\TextInput::make('otp')
+                        //     ->maxLength(255),
+                        // Forms\Components\DateTimePicker::make('otp_send_time'),
+                        Forms\Components\Toggle::make('is_admin')
+                            ->required(),
+                        // Forms\Components\Toggle::make('is_user_verified')
+                        //     ->required(),
+                        // Forms\Components\TextInput::make('password')
+                        //     ->password()
+                        //     ->required()
+                        //     ->maxLength(255),
+
+                    ])
+                    ->columns(2),
+
             ]);
     }
 
@@ -67,29 +84,45 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Name'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Email'),
+                // Tables\Columns\TextColumn::make('email_verified_at')
+                //     ->dateTime()
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('role')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Role'),
                 Tables\Columns\TextColumn::make('phone_number')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('otp')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('otp_send_time')
-                    ->dateTime()
-                    ->sortable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Phone Number'),
+                // Tables\Columns\TextColumn::make('otp')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('otp_send_time')
+                //     ->dateTime()
+                //     ->sortable(),
                 Tables\Columns\IconColumn::make('is_admin')
                     ->boolean(),
-                Tables\Columns\IconColumn::make('is_user_verified')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('lat')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('long')
-                    ->searchable(),
+                // Tables\Columns\IconColumn::make('is_user_verified')
+                //     ->boolean(),
+                // Tables\Columns\TextColumn::make('lat')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('long')
+                // ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
