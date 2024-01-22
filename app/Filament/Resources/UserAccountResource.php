@@ -25,6 +25,12 @@ class UserAccountResource extends Resource
 
     protected static ?string $navigationGroup = 'Users';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['user.name'];
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -57,16 +63,30 @@ class UserAccountResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->label('User'),
                 Tables\Columns\TextColumn::make('account_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('account_currency')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Currency')
+                    ->toggleable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('account_balance')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Balance')
+                    ->toggleable()
+                    ->sortable()
+                    ->money('UGX', true),
                 Tables\Columns\TextColumn::make('pin')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Pin')
+                    ->toggleable()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('show_wallet_balance')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('is_active')
@@ -87,36 +107,36 @@ class UserAccountResource extends Resource
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
                 Filter::make('created_at')
-                ->form([
-                    DatePicker::make('created_from'),
-                    DatePicker::make('created_until'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['created_from'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                        )
-                        ->when(
-                            $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                        );
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if ($data['from'] ?? null) {
-                        $indicators[] = Indicator::make('Created from '.Carbon::parse($data['from'])->toFormattedDateString())
-                            ->removeField('from');
-                    }
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
 
-                    if ($data['until'] ?? null) {
-                        $indicators[] = Indicator::make('Created until '.Carbon::parse($data['until'])->toFormattedDateString())
-                            ->removeField('until');
-                    }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

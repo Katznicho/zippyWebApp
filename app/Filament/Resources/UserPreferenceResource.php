@@ -24,6 +24,12 @@ class UserPreferenceResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Users';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['location', 'room_type', 'min_price'];
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -46,13 +52,21 @@ class UserPreferenceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->label('User Name'),
                 Tables\Columns\TextColumn::make('location')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->label('Location'),
                 Tables\Columns\TextColumn::make('room_type')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->label('Room Type'),
                 Tables\Columns\TextColumn::make('min_price')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('max_price')

@@ -25,6 +25,17 @@ class PropertyResource extends Resource
 
     protected static ?string $navigationGroup = 'Property';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'category.name', 'owner.name', 'agent.name', 'description', 'name', 'is_available', 'is_approved', 'number_of_beds',
+            'number_of_baths', 'number_of_rooms', 'price',
+            'location',
+            'zippy_id',
+        ];
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form

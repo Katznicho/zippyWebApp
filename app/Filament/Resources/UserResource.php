@@ -29,6 +29,12 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'Users';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'phone_number', 'role'];
+    }
+
+
     public static function form(Form $form): Form
     {
         return $form
