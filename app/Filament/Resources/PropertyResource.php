@@ -29,23 +29,28 @@ class PropertyResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('category_id')
+                Forms\Components\Select::make('category_id')
+                    ->relationship('category', "name")
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('owner_id')
+                    ->label("Property Category"),
+                Forms\Components\Select::make('owner_id')
+                    ->relationship('owner', "name")
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('agent_id')
-                    ->numeric(),
+                    ->label("Owner"),
+                Forms\Components\Select::make('agent_id')
+                    ->relationship('agent', "name")
+                    ->required()
+                    ->label("Agent"),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('description')
+                    ->required()
                     ->maxLength(255),
-                Forms\Components\FileUpload::make('cover_image')
-                    ->image(),
-                Forms\Components\TextInput::make('images')
-                    ->maxLength(255),
+                // Forms\Components\FileUpload::make('cover_image')
+                //     ->image(),
+                // Forms\Components\TextInput::make('images')
+                //     ->maxLength(255),
                 Forms\Components\Toggle::make('is_available')
                     ->required(),
                 Forms\Components\Toggle::make('is_approved')
@@ -253,7 +258,7 @@ class PropertyResource extends Resource
     {
         return [
             'index' => Pages\ListProperties::route('/'),
-            'create' => Pages\CreateProperty::route('/create'),
+            // 'create' => Pages\CreateProperty::route('/create'),
             'view' => Pages\ViewProperty::route('/{record}'),
             'edit' => Pages\EditProperty::route('/{record}/edit'),
         ];
