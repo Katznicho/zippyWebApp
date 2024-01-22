@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Imports\AmenityImporter;
 use App\Filament\Resources\AmenityResource\Pages;
 use App\Filament\Resources\AmenityResource\RelationManagers;
 use App\Models\Amenity;
@@ -16,6 +17,8 @@ use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use  Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Columns\TextColumn;
 
 class AmenityResource extends Resource
 {
@@ -29,13 +32,23 @@ class AmenityResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
+                Forms\Components\Section::make('Create a new service')
+                    ->description('Add a new service to the system.')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->label("Amentity Name"),
+                        Forms\Components\TextInput::make('description')
+                            ->maxLength(255)
+                            ->label("Description"),
+                        Forms\Components\FileUpload::make('image')
+                            ->directory('amentities')
+                            ->image()
+                            ->label('Amentity Image'),
+
+                    ])
+
             ]);
     }
 
@@ -44,10 +57,22 @@ class AmenityResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Name'),
                 Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Description'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk('amentities')
+                    ->label('Amentity Image')
+                    ->circular(),
+                TextColumn::make('image')->label('Image')->formatStateUsing(fn (string $state): string => url($state)),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -64,40 +89,46 @@ class AmenityResource extends Resource
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
                 Filter::make('created_at')
-                ->form([
-                    DatePicker::make('created_from'),
-                    DatePicker::make('created_until'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['created_from'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                        )
-                        ->when(
-                            $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                        );
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if ($data['from'] ?? null) {
-                        $indicators[] = Indicator::make('Created from '.Carbon::parse($data['from'])->toFormattedDateString())
-                            ->removeField('from');
-                    }
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
 
-                    if ($data['until'] ?? null) {
-                        $indicators[] = Indicator::make('Created until '.Carbon::parse($data['until'])->toFormattedDateString())
-                            ->removeField('until');
-                    }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Import Amenities')
+
+                    ->importer(AmenityImporter::class)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
