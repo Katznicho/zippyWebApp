@@ -24,6 +24,10 @@ class ViewProperty extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Action::make('View Images')
+                ->action(function (Property $record) {
+                    return redirect()->route('filament.admin.resources.properties.view-images', $record->id);
+                }),
             Action::make('Approve')
                 ->visible(fn (Property $record) => !$record->is_approved)
                 // ->color('success')

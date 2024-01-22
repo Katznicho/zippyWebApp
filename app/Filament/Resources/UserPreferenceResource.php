@@ -141,6 +141,7 @@ class UserPreferenceResource extends Resource
             'create' => Pages\CreateUserPreference::route('/create'),
             'view' => Pages\ViewUserPreference::route('/{record}'),
             'edit' => Pages\EditUserPreference::route('/{record}/edit'),
+
         ];
     }
 

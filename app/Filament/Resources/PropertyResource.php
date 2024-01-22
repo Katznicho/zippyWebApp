@@ -272,6 +272,7 @@ class PropertyResource extends Resource
             // 'create' => Pages\CreateProperty::route('/create'),
             'view' => Pages\ViewProperty::route('/{record}'),
             'edit' => Pages\EditProperty::route('/{record}/edit'),
+            'view-images' => Pages\ViewImages::route('/{record}/view-images'),
         ];
     }
 
