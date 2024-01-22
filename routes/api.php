@@ -19,4 +19,5 @@ Route::prefix('v1')->group(function () {
     include_once __DIR__ . '/custom/user_routes.php';
     include_once __DIR__ . '/custom/agent_routes.php';
     include_once __DIR__ . '/custom/property_owner_routes.php';
+    include_once __DIR__ . '/custom/genearal_routes.php';
 });

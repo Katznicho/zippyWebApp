@@ -6,10 +6,9 @@ use App\Models\Amenity;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
-class PropertyOwnerController extends Controller
+class GeneralController extends Controller
 {
     //
-
     public function  getAllServices(Request $request)
     {
         try {

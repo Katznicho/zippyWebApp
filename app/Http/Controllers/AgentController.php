@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AccountCreation;
+use App\Models\Property;
 use App\Models\User;
 use App\Traits\MessageTrait;
 use App\Traits\UserTrait;
@@ -69,6 +70,148 @@ class AgentController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['response' => 'failure', 'message' => $th->getMessage()], 401);
+        }
+    }
+
+    public function getRegisterPropertyOwnersByPage(Request $request)
+    {
+        try {
+            $limit = $request->input('limit', 100);
+            $page = $request->input('page', 1);
+            $sortOrder = $request->input('sort_order', 'desc');
+
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+
+            $property_owners =  User::orderBy('id', $sortOrder)->where('referrer_id', $user_id)->paginate($limit, ['*'], 'page', $page);
+
+            $response = [
+                "data" => $property_owners->items(),
+                "pagination" => [
+                    "total" => $property_owners->total(),
+                    "current_page" => $property_owners->currentPage(),
+                    "last_page" => $property_owners->lastPage(),
+                    "per_page" => $property_owners->perPage(),
+                ]
+            ];
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+
+    public function getRegisterPropertyByPage(Request $request)
+    {
+        try {
+            //code...
+            $limit = $request->input('limit', 100);
+            $page = $request->input('page', 1);
+            $sortOrder = $request->input('sort_order', 'desc');
+
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+
+            $property = Property::orderBy('id', $sortOrder)->where('agent_id', $user_id)
+                ->with([
+                    'agent',
+                    'user',
+                    'services',
+                    'amenities',
+                    'category',
+
+                ])
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $response = [
+                "data" => $property->items(),
+                "pagination" => [
+                    "total" => $property->total(),
+                    "current_page" => $property->currentPage(),
+                    "last_page" => $property->lastPage(),
+                    "per_page" => $property->perPage(),
+                ]
+
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function registerPropertyByAgent(Request $request)
+    {
+        try {
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+            //code...
+            $request->validate([
+                'name' => 'required',
+                'description' => 'required',
+                'images' => 'required|array',
+                'lat' => 'required',
+                'long' => 'required',
+                'agent_id' => 'required',
+                'category_id' => 'required',
+                'owner_id' => 'required',
+                'cover_image' => 'required',
+                'number_of_beds' => 'required',
+                'number_of_baths' => 'required',
+                'number_of_rooms' => 'required',
+                'room_type' => 'required',
+                'furnishing_status' => 'required',
+                'status' => 'required',
+                'price' => 'required',
+                'year_built' => 'required',
+                'location' => 'required',
+                'currency' => 'required',
+                'property_size' => 'required',
+                'owner_id' => 'required'
+
+            ]);
+            // 'zippy_id' => 'required',
+
+            // Get the first 2 letters from the location
+            $locationPrefix = strtoupper(substr($request->location, 0, 2));
+
+            // Get the last property stored
+            $lastProperty = Property::latest()->first();
+
+
+            $zippy_id = 'ZPUG' . $locationPrefix . ($lastProperty ? $lastProperty->id + 1 : 1);
+
+            // auto generate zippy_id
+            $property = Property::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'images' => $request->images,
+                'lat' => $request->lat,
+                'long' => $request->long,
+                'agent_id' => $user_id,
+                'category_id' => $request->category_id,
+                'owner_id' => $request->owner_id,
+                'cover_image' => $request->cover_image,
+                'number_of_beds' => $request->number_of_beds,
+                'number_of_baths' => $request->number_of_baths,
+                'number_of_rooms' => $request->number_of_rooms,
+                'room_type' => $request->room_type,
+                'furnishing_status' => $request->furnishing_status,
+                'status' => $request->status,
+                'price' => $request->price,
+                'year_built' => $request->year_built,
+                'location' => $request->location,
+                'currency' => $request->currency,
+                'property_size' => $request->property_size,
+                'owner' => $request->owner_id,
+                'zippy_id' => $zippy_id
+            ]);
+            if ($property) {
+                return response()->json(['response' => "success", 'message' => 'Property created successfully.',  'data' => $property]);
+            }
+            return response()->json(['success' => true, 'message' => 'Property created successfully.']);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
 }

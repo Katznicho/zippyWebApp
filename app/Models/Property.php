@@ -35,8 +35,14 @@ class Property extends Model
         'location',
         'agent_id',
         'owner_id',
-        'category_id'
+        'category_id',
+        'owner_id'
 
+    ];
+
+
+    protected $casts = [
+        'images' => 'array'
     ];
 
 
