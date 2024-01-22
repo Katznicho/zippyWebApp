@@ -37,10 +37,12 @@ class UserResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
+                            ->label("Full Name")
                             ->maxLength(255),
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->unique()
+                            ->label("Email")
                             ->required()
                             ->maxLength(255),
                         // Forms\Components\DateTimePicker::make('email_verified_at'),
@@ -55,7 +57,7 @@ class UserResource extends Resource
                             ->label('Role')
                             ->searchable(),
 
-                        PhoneInput::make('phone')
+                        PhoneInput::make('phone_number')
                             ->label('Phone Number')
                             ->required()
                             ->unique()

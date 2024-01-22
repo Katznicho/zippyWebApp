@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('v1')->group(function () {
+    include_once __DIR__ . '/custom/auth_routes.php';
+    include_once __DIR__ . '/custom/user_routes.php';
+    include_once __DIR__ . '/custom/agent_routes.php';
+    include_once __DIR__ . '/custom/property_owner_routes.php';
 });
