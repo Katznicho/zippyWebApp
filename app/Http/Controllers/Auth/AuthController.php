@@ -203,7 +203,7 @@ class AuthController extends Controller
         ]);
 
         // Find the user
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         // Check if the user exists and the password is correct
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -657,7 +657,7 @@ class AuthController extends Controller
         return response()->json(['response' => 'success', 'message' => 'Device token saved successfully.']);
     }
 
-    
+
 
     public function updateUserUpdatePassword(Request $request)
     {

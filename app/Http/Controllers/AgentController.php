@@ -28,6 +28,8 @@ class AgentController extends Controller
                 'name' => 'required|string',
             ]);
 
+
+
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
             $password = Str::random(8);
 
@@ -36,7 +38,7 @@ class AgentController extends Controller
                 'phone_number' => $request->phone_number,
                 'referrer_id' => $user_id,
                 'password' => Hash::make($password),
-                'name ' => $request->name,
+                'name' => $request->name,
                 'role' => config("users.Roles.Property Owner"),
             ]);
             if ($user) {
@@ -53,7 +55,7 @@ class AgentController extends Controller
                 If you dont have the app please contact us or download the app from the play store
                 <a href='https://play.google.com/store/apps/details?id=com.otp.otp'>https://play.google.com/store/apps/details?id=com.otp.otp</a>";
 
-                $this->sendMessage($request->phone_number, $message);
+                // $this->sendMessage($request->phone_number, $message);
 
                 return response()->json([
                     'response' => 'success',
@@ -151,7 +153,6 @@ class AgentController extends Controller
                 'images' => 'required|array',
                 'lat' => 'required',
                 'long' => 'required',
-                'agent_id' => 'required',
                 'category_id' => 'required',
                 'owner_id' => 'required',
                 'cover_image' => 'required',
@@ -166,7 +167,9 @@ class AgentController extends Controller
                 'location' => 'required',
                 'currency' => 'required',
                 'property_size' => 'required',
-                'owner_id' => 'required'
+                'services' => 'required|array',
+                'amenities' => 'required|array',
+                'is_available' => "required"
 
             ]);
             // 'zippy_id' => 'required',
@@ -206,6 +209,13 @@ class AgentController extends Controller
                 'zippy_id' => $zippy_id
             ]);
             if ($property) {
+                // add services
+                $services = $request->services;
+                $property->services()->attach($services);
+                // add amenities
+                $amenities = $request->amenities;
+                $property->amenities()->attach($amenities);
+
                 return response()->json(['response' => "success", 'message' => 'Property created successfully.',  'data' => $property]);
             }
             return response()->json(['success' => true, 'message' => 'Property created successfully.']);

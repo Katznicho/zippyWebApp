@@ -37,6 +37,14 @@ class ListProperties extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereYear('created_at', Carbon::now()->year)),
             'Last Year' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereYear('created_at', Carbon::now()->subYear()->year)),
+            "Available" => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_available', true)),
+            "Not Available" => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_available', false)),
+            "Approved" => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_approved', true)),
+            "Not Approved" => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_approved', false)),
         ];
     }
 }

@@ -95,22 +95,39 @@ class PropertyResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('category_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('owner_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('agent_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\ImageColumn::make('cover_image')
+                    ->label("Cover Image")
+                    ->circular(),
+                Tables\Columns\TextColumn::make('zippy_id')
+                    ->searchable()
+                    ->label('Zippy Id')
+                    ->copyable()
+                    ->toggleable()
+                    ->label('Zippy Id'),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Category'),
+                Tables\Columns\TextColumn::make('owner.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Owner'),
+                Tables\Columns\TextColumn::make('agent.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Agent'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('cover_image'),
-                Tables\Columns\TextColumn::make('images')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('images')
+                //     ->searchable(),
                 Tables\Columns\IconColumn::make('is_available')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('is_approved')
@@ -132,20 +149,30 @@ class PropertyResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('zippy_id')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('currency')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Currency')
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Currency'),
                 Tables\Columns\TextColumn::make('property_size')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Property Size'),
                 Tables\Columns\TextColumn::make('year_built')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('lat')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('long')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Year Built'),
                 Tables\Columns\TextColumn::make('location')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->label('Location'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -161,37 +188,46 @@ class PropertyResource extends Resource
             ])
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
+                Filter::make('is_available')
+                    ->toggle()
+                    ->label('Available Properties')
+                    ->query(fn (Builder $query): Builder => $query->where('is_available', true)),
+                Filter::make('is_approved')
+                    ->toggle()
+                    ->label('Approved Properties')
+                    ->query(fn (Builder $query): Builder => $query->where('is_approved', true)),
+
                 Filter::make('created_at')
-                ->form([
-                    DatePicker::make('created_from'),
-                    DatePicker::make('created_until'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['created_from'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                        )
-                        ->when(
-                            $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                        );
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if ($data['from'] ?? null) {
-                        $indicators[] = Indicator::make('Created from '.Carbon::parse($data['from'])->toFormattedDateString())
-                            ->removeField('from');
-                    }
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
 
-                    if ($data['until'] ?? null) {
-                        $indicators[] = Indicator::make('Created until '.Carbon::parse($data['until'])->toFormattedDateString())
-                            ->removeField('until');
-                    }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
