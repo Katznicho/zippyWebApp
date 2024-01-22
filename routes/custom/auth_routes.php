@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -9,6 +9,7 @@ Route::prefix('auth')->group(function () {
     Route::post('registerCommunity', [AuthController::class, 'registerCommunity']);
     Route::post('verifyEmail', [AuthController::class, 'verifyEmail']);
     Route::post('resendOTP', [AuthController::class, 'resendOTP']);
+
     Route::post('login', [AuthController::class, 'login']);
     Route::post('requestPasswordReset', [AuthController::class, 'requestPasswordReset']);
     Route::post('resetPassword', [AuthController::class, 'resetPassword']);
