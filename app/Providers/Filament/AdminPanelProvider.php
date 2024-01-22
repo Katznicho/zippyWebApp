@@ -18,6 +18,10 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\MaxWidth;
+use Swis\Filament\Backgrounds\FilamentBackgroundsPlugin;
+use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Illuminate\Validation\Rules\Password;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,8 +32,11 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // ->colors([
+            //     'primary' => "#0b1333",
+            // ])
             ->colors([
-                'primary' => "#0b1333",
+                'primary' => Color::Amber,
             ])
             ->maxContentWidth(MaxWidth::Full)
             ->brandName('Zippy')
@@ -38,8 +45,25 @@ class AdminPanelProvider extends PanelProvider
             // )
             ->darkMode(true)
             ->profile()
+            ->plugins([
+                FilamentBackgroundsPlugin::make(),
+                \Hasnayeen\Themes\ThemesPlugin::make(),
+                BreezyCore::make()
+                    ->myProfile(
+                        shouldRegisterUserMenu: true,
+                        // shouldRegisterNavigation: true,
+                        hasAvatars: true,
+                        slug: 'my-profile',
+                    )
 
-
+                    ->passwordUpdateRules(
+                        rules: [Password::default()->mixedCase()->uncompromised(3)],
+                        requiresCurrentPassword: true,
+                    )
+                    ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
+                    // ->avatarUploadComponent(fn () => FileUpload::make('avatar_url')->disk('profile-photos'))
+                    ->enableTwoFactorAuthentication(),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -60,6 +84,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \Hasnayeen\Themes\Http\Middleware\SetTheme::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

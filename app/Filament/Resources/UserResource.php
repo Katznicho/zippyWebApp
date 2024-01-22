@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\Action;
+use Filament\Notifications\Notification;
 
 class UserResource extends Resource
 {
@@ -171,6 +173,32 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Action::make('makeAdmin')
+                    ->color('success')
+                    ->visible(fn (User $user) => $user->is_admin == 0)
+                    ->requiresConfirmation()
+                    ->action(function (User $user) {
+                        $user->is_admin = 1;
+                        $user->save();
+                        Notification::make()
+                            ->success()
+                            ->title('Added Admin')
+                            ->body("user $user->name is now an admin")
+                            ->send();
+                    }),
+                Action::make('removeAdmin')
+                    ->color('danger')
+                    ->visible(fn (User $user) => $user->is_admin == 1)
+                    ->requiresConfirmation()
+                    ->action(function (User $user) {
+                        $user->is_admin = 0;
+                        $user->save();
+                        Notification::make()
+                            ->success()
+                            ->title('Added Admin')
+                            ->body("user $user->name is now an admin")
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
