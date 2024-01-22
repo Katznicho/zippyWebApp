@@ -32,7 +32,8 @@ class User extends Authenticatable
         'device_token',
         'email_verified_at',
         'avatar',
-         'is_new_user',
+        'is_new_user',
+        'referrer_id'
     ];
 
     /**
@@ -84,5 +85,8 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
-    
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referrer_id');
+    }
 }
