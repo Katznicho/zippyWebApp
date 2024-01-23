@@ -24,6 +24,7 @@ Route::prefix('auth')->group(function () {
         Route::post('saveDeviceInfo', [AuthController::class, 'saveDeviceInfo']);
         Route::post('hasWalletAccount', [AuthController::class, 'hasWalletAccount']);
         Route::post('updateUserAvatarUrl', [AuthController::class, 'updateUserAvatarUrl']);
+        Route::post("resetPasswordFirstUser", [AuthController::class, 'resetPasswordFirstUser']);
 
         Route::post('updateUserLocation', [AuthController::class, 'updateUserLocation']);
     });

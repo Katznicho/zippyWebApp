@@ -304,14 +304,14 @@ class AuthController extends Controller
     public function requestPasswordReset(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|exists:users,email',
+            'phone_number' => 'required|string|exists:users,phone_number',
         ]);
 
         // Generate a random OTP code
         $otpCode = random_int(100000, 999999);
 
         // Get the user
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         // Update the user's OTP code and OTP send time
         $user->update([
@@ -326,6 +326,18 @@ class AuthController extends Controller
             throw $th;
         }
 
+        $message = "You have requested to reset your password. To verify
+        that it's you, please use the following one-time
+        verification code:  . $otpCode . ";
+        $message .= "Please enter this code on the password reset screen in your";
+        $message .= "app to continue to reset your password.";
+        $message .= "This code will expire in 5 minutes.";
+        $message .= "Thanks,";
+        $message .= "Zippy Team";
+
+
+        $this->sendSMS($user->phone_number, $message);
+
         return response()->json([
             'response' => 'success',
             'message' => 'OTP sent successfully',
@@ -337,7 +349,7 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|exists:users,email',
+            'phone_number' => 'required|string|exists:users,phone_number',
             'otp' => 'required|size:6',
             'new_password' => 'required|string|min:6',
             'confirm_new_password' => 'required|string|same:new_password',
@@ -350,9 +362,9 @@ class AuthController extends Controller
         if (!Hash::check($request->otp, $user->otp)) {
             return response()->json([
                 'response' => 'failure',
-                'message' => 'Incorrect OTP. Check your email for OTP sent to you',
+                'message' => 'Incorrect OTP. Check your phone  number for OTP sent to you',
                 'errors' => [
-                    'otp' => ['Incorrect OTP. Check your email for OTP sent to you'],
+                    'otp' => ['Incorrect OTP. Check your phone number for OTP sent to you'],
                 ],
             ], 401);
         }
@@ -387,6 +399,30 @@ class AuthController extends Controller
             'authToken' => $authToken,
             'user' => $user,
         ], 200);
+    }
+
+
+    public function resetPasswordFirstUser(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required|string|min:6',
+            'new_password' => 'required|string|min:6',
+            'confirm_new_password' => 'required|string|same:new_password',
+        ]);
+
+        $user_id  = $this->getCurrentLoggedUserBySanctum()->id;
+        $user = User::find($user_id);
+        $hashed_oldPin = Hash::make($request->old_password);
+        if (!Hash::check($hashed_oldPin, $user->password)) {
+            return response()->json(['response' => 'failure', 'message' => 'Old password is incorrect.']);
+        } else {
+            $hashed_newPin = Hash::make($request->new_password);
+            $user->password = $hashed_newPin;
+            $user->is_new_user = 0;
+            $user->save();
+
+            return response()->json(['response' => 'success', 'message' => 'Password updated successfully.']);
+        }
     }
 
     //
