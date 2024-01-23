@@ -224,4 +224,18 @@ class AgentController extends Controller
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
+
+    public function getAgentTotals(Request $request)
+    {
+        try {
+            //code...
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+            $total_referrals =  User::where('referrer_id', $user_id)->count();
+            $toal_properties = Property::where('agent_id', $user_id)->count();
+            return response()->json(['response' => 'success', 'message' => 'Totals fetched successfully.', 'data' => ['total_referrals' => $total_referrals, 'toal_properties' => $toal_properties]]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
 }

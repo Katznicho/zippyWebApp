@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function () {
 
     Route::post('register', [AuthController::class, 'register']);
-    Route::post('registerCommunity', [AuthController::class, 'registerCommunity']);
     Route::post('verifyEmail', [AuthController::class, 'verifyEmail']);
     Route::post('resendOTP', [AuthController::class, 'resendOTP']);
 
@@ -26,8 +25,6 @@ Route::prefix('auth')->group(function () {
         Route::post('hasWalletAccount', [AuthController::class, 'hasWalletAccount']);
         Route::post('updateUserAvatarUrl', [AuthController::class, 'updateUserAvatarUrl']);
 
-        Route::post('communityUploadVerificationDocument', [AuthController::class, 'communityUploadVerificationDocument']);
-        Route::post('donorUpdateVerificationDocument', [AuthController::class, 'donorUpdateVerificationDocument']);
         Route::post('updateUserLocation', [AuthController::class, 'updateUserLocation']);
     });
 });

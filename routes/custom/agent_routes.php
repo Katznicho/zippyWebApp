@@ -9,4 +9,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("getRegisterPropertyOwnersByPage", [AgentController::class, "getRegisterPropertyOwnersByPage"]);
     Route::get("getRegisterPropertyByPage", [AgentController::class, "getRegisterPropertyByPage"]);
     Route::post("registerPropertyByAgent", [AgentController::class, "registerPropertyByAgent"]);
+    Route::post("getAgentTotals", [AgentController::class, "getAgentTotals"]);
+    //Route::post("")
 });
