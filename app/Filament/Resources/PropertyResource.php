@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
+use App\Models\Amenity;
 use App\Models\Property;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -16,6 +17,9 @@ use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
 
 class PropertyResource extends Resource
 {
@@ -40,70 +44,112 @@ class PropertyResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', "name")
-                    ->required()
-                    ->label("Property Category"),
-                Forms\Components\Select::make('owner_id')
-                    ->relationship('owner', "name")
-                    ->required()
-                    ->label("Owner"),
-                Forms\Components\Select::make('agent_id')
-                    ->relationship('agent', "name")
-                    ->required()
-                    ->label("Agent"),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->required()
-                    ->maxLength(255),
-                // Forms\Components\FileUpload::make('cover_image')
-                //     ->image(),
-                // Forms\Components\TextInput::make('images')
-                //     ->maxLength(255),
-                Forms\Components\Toggle::make('is_available')
-                    ->required(),
-                Forms\Components\Toggle::make('is_approved')
-                    ->required(),
-                Forms\Components\TextInput::make('number_of_beds')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('number_of_baths')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('number_of_rooms')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('room_type')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('furnishing_status')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('price')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('zippy_id')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('currency')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('UGX'),
-                Forms\Components\TextInput::make('property_size')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('year_built')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('lat')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('long')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('location')
-                    ->maxLength(255),
+
+                Forms\Components\Section::make('Create a new property')
+                    ->description('Add a new property to the system.')
+                    ->schema([
+                        Forms\Components\Select::make('category_id')
+                            ->relationship('category', "name")
+                            ->required()
+                            ->label("Property Category"),
+                        Forms\Components\Select::make('owner_id')
+                            ->relationship('owner', "name")
+                            ->required()
+                            ->label("Owner"),
+                        Forms\Components\Select::make('agent_id')
+                            ->relationship('agent', "name")
+                            ->required()
+                            ->label("Agent"),
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('description')
+                            ->required()
+                            ->maxLength(255),
+                        // Forms\Components\FileUpload::make('cover_image')
+                        //     ->image(),
+                        // Forms\Components\TextInput::make('images')
+                        //     ->maxLength(255),
+                        // Repeater::make('images')
+                        //     ->schema([
+                        //         Forms\Components\Select::make("amenity_id")
+
+                        //             ->required()
+                        //             ->options(Amenity::all()->pluck("name", "id"))
+
+                        //     ]),
+
+                        Repeater::make('amenityProperties')
+                            ->relationship('amenityProperties')
+                            ->collapsible()
+                            ->schema([
+                                Forms\Components\Select::make("amenity_id")
+                                    ->required()
+                                    ->label("Amenities")
+                                    ->options(Amenity::all()->pluck("name", "id"))
+                                    ->searchable()
+
+                            ]),
+
+                        Repeater::make('propertyServices')
+                            ->relationship('propertyServices')
+                            ->collapsible()
+                            ->schema([
+                                Forms\Components\Select::make("service_id")
+                                    ->required()
+                                    ->label("Services")
+                                    ->options(Amenity::all()->pluck("name", "id"))
+                                    ->searchable()
+
+                            ]),
+
+
+                        Forms\Components\Toggle::make('is_available')
+                            ->required(),
+                        Forms\Components\Toggle::make('is_approved')
+                            ->required(),
+                        Forms\Components\TextInput::make('number_of_beds')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\TextInput::make('number_of_baths')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\TextInput::make('number_of_rooms')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\TextInput::make('room_type')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('furnishing_status')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('status')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('price')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('zippy_id')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('currency')
+                            ->required()
+                            ->maxLength(255)
+                            ->default('UGX'),
+                        Forms\Components\TextInput::make('property_size')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('year_built')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('lat')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('long')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('location')
+                            ->maxLength(255),
+
+                    ])
+
+
             ]);
     }
 
@@ -262,6 +308,8 @@ class PropertyResource extends Resource
     {
         return [
             //
+            // RelationManagers::
+            RelationManagers\AmenitiesRelationManager::class,
         ];
     }
 
@@ -269,7 +317,7 @@ class PropertyResource extends Resource
     {
         return [
             'index' => Pages\ListProperties::route('/'),
-            // 'create' => Pages\CreateProperty::route('/create'),
+            'create' => Pages\CreateProperty::route('/create'),
             'view' => Pages\ViewProperty::route('/{record}'),
             'edit' => Pages\EditProperty::route('/{record}/edit'),
             'view-images' => Pages\ViewImages::route('/{record}/view-images'),

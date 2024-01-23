@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
@@ -48,9 +49,22 @@ class Property extends Model
 
     public function amenities()
     {
-        return $this->belongsToMany(Amenity::class, "amenity_property")
-            ->withTimestamps();;
+        return $this->belongsToMany(Amenity::class)
+            ->using(AmenityProperty::class)
+            ->withPivot('property_id', 'amenity_id');
     }
+
+    public function amenityProperties(): HasMany
+    {
+        return $this->hasMany(AmenityProperty::class);
+    }
+
+    public function propertyServices(): HasMany
+    {
+        return $this->hasMany(PropertyService::class);
+    }
+
+
 
     public function services()
     {

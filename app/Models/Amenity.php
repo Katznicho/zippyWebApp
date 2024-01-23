@@ -20,7 +20,8 @@ class Amenity extends Model
 
     public function properties()
     {
-        return $this->belongsToMany(Property::class, "amenity_property")
+        return $this->belongsToMany(Property::class)
+            ->using(AmenityProperty::class)
             ->withTimestamps();
     }
 }
