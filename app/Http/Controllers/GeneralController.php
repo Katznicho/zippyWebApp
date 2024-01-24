@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Amenity;
+use App\Models\Category;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -34,6 +35,24 @@ class GeneralController extends Controller
                 [
                     'response' => "success",
                     "data" => $amenities
+                ],
+                201
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function  getAllCategories(Request $request)
+    {
+        try {
+            //code...
+            $categories =  Category::all();
+            return response()->json(
+                [
+                    'response' => "success",
+                    "data" => $categories
                 ],
                 201
             );

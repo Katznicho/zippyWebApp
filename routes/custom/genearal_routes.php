@@ -7,5 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get("getAllServices", [GeneralController::class, "getAllServices"]);
 Route::get("getAllAmenities", [GeneralController::class, "getAllAmenities"]);
+Route::get("getAllCategories", [GeneralController::class, "getAllCategories"]);
 Route::post("profileUpload", [FileUploadController::class, "profileUpload"]);
 Route::post("uploadIdImages", [FileUploadController::class, "uploadIdImages"]);

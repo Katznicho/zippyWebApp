@@ -102,6 +102,18 @@ class AgentController extends Controller
         }
     }
 
+    public function getAllRegisteredPropertyOwners(Request $request)
+    {
+        try {
+            //code...
+            $property_owners =  User::where('role', config('users.Roles.Property Owner'))->where('referrer_id', $this->getCurrentLoggedUserBySanctum()->id)->get();
+            return response()->json(["response" => "success", "data" => $property_owners], 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
 
     public function getRegisterPropertyByPage(Request $request)
     {

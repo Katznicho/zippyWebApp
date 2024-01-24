@@ -9,8 +9,6 @@ use App\Mail\WalletActivated;
 use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\UserDevice;
-use App\Models\UserLocation;
-use App\Models\Verification;
 use App\Traits\MessageTrait;
 use App\Traits\SendPushNotification;
 use App\Traits\UserTrait;
@@ -336,7 +334,7 @@ class AuthController extends Controller
         $message .= "Zippy Team";
 
 
-        $this->sendSMS($user->phone_number, $message);
+        $this->sendMessage($user->phone_number, $message);
 
         return response()->json([
             'response' => 'success',
@@ -404,24 +402,21 @@ class AuthController extends Controller
 
     public function resetPasswordFirstUser(Request $request)
     {
-        $request->validate([
-            'old_password' => 'required|string|min:6',
-            'new_password' => 'required|string|min:6',
-            'confirm_new_password' => 'required|string|same:new_password',
-        ]);
+        try {
+            $request->validate([
+                'new_password' => 'required|string|min:6',
+                'confirm_new_password' => 'required|string|same:new_password',
+            ]);
 
-        $user_id  = $this->getCurrentLoggedUserBySanctum()->id;
-        $user = User::find($user_id);
-        $hashed_oldPin = Hash::make($request->old_password);
-        if (!Hash::check($hashed_oldPin, $user->password)) {
-            return response()->json(['response' => 'failure', 'message' => 'Old password is incorrect.']);
-        } else {
-            $hashed_newPin = Hash::make($request->new_password);
-            $user->password = $hashed_newPin;
+            $user_id  = $this->getCurrentLoggedUserBySanctum()->id;
+            $user = User::find($user_id);
+            //update user password
+            $user->password = Hash::make($request->new_password);
             $user->is_new_user = 0;
             $user->save();
-
             return response()->json(['response' => 'success', 'message' => 'Password updated successfully.']);
+        } catch (\Throwable $th) {
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()]);
         }
     }
 
