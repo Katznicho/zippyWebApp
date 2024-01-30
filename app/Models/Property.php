@@ -25,10 +25,11 @@ class Property extends Model
         'number_of_rooms',
         'room_type',
         'furnishing_status',
-        'status',
+        'status_id',
         'price',
         'zippy_id',
-        'currency',
+        'currency_id',
+        'payment_period_id',
         'property_size',
         'year_built',
         'lat',
@@ -37,13 +38,15 @@ class Property extends Model
         'agent_id',
         'owner_id',
         'category_id',
-        'owner_id'
+        'owner_id',
+        'public_facilities'
 
     ];
 
 
     protected $casts = [
-        'images' => 'array'
+        'images' => 'array',
+        'public_facilities' => 'array'
     ];
 
 
@@ -88,5 +91,23 @@ class Property extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    //property has a currency
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_id');
+    }
+
+    //property has a status
+    public function status()
+    {
+        return $this->belongsTo(PropertyStatus::class);
+    }
+
+    //property has payment period
+    public function paymentPeriod()
+    {
+        return $this->belongsTo(PaymentPeriod::class);
     }
 }

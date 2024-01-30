@@ -84,7 +84,9 @@ class AgentController extends Controller
 
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
 
-            $property_owners =  User::orderBy('id', $sortOrder)->where('referrer_id', $user_id)->paginate($limit, ['*'], 'page', $page);
+            $property_owners =  User::orderBy('id', $sortOrder)->where('referrer_id', $user_id)
+                ->with('properties')
+                ->paginate($limit, ['*'], 'page', $page);
 
             $response = [
                 "data" => $property_owners->items(),
@@ -95,7 +97,7 @@ class AgentController extends Controller
                     "per_page" => $property_owners->perPage(),
                 ]
             ];
-            return response()->json($response, 200);
+            return response()->json(['response' => "success", 'data' => $response], 200);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
@@ -128,10 +130,12 @@ class AgentController extends Controller
             $property = Property::orderBy('id', $sortOrder)->where('agent_id', $user_id)
                 ->with([
                     'agent',
-                    'user',
+                    'owner',
                     'services',
                     'amenities',
                     'category',
+                    'amenityProperties',
+                    'propertyServices'
 
                 ])
                 ->paginate($limit, ['*'], 'page', $page);
@@ -147,7 +151,7 @@ class AgentController extends Controller
 
             ];
 
-            return response()->json($response, 200);
+            return response()->json(['response' => "success", 'data' => $response], 200);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
@@ -170,18 +174,20 @@ class AgentController extends Controller
                 'cover_image' => 'required',
                 'number_of_beds' => 'required',
                 'number_of_baths' => 'required',
-                'number_of_rooms' => 'required',
-                'room_type' => 'required',
-                'furnishing_status' => 'required',
-                'status' => 'required',
+                // 'number_of_rooms' => 'required',
+                // 'room_type' => 'required',
+                // 'furnishing_status' => 'required',
+                'status_id' => 'required',
                 'price' => 'required',
-                'year_built' => 'required',
+                // 'year_built' => 'required',
                 'location' => 'required',
-                'currency' => 'required',
-                'property_size' => 'required',
+                'currency_id' => 'required',
+                'payment_period_id' => "required",
+                // 'property_size' => 'required',
                 'services' => 'required|array',
                 'amenities' => 'required|array',
-                'is_available' => "required"
+                'is_available' => "required",
+                "public_facilities" => "required|array",
 
             ]);
             // 'zippy_id' => 'required',
@@ -208,14 +214,17 @@ class AgentController extends Controller
                 'cover_image' => $request->cover_image,
                 'number_of_beds' => $request->number_of_beds,
                 'number_of_baths' => $request->number_of_baths,
-                'number_of_rooms' => $request->number_of_rooms,
-                'room_type' => $request->room_type,
+                // 'number_of_rooms' => $request->number_of_rooms,
+                // 'room_type' => $request->room_type,
                 'furnishing_status' => $request->furnishing_status,
-                'status' => $request->status,
+                'status_id' => $request->status_id,
+                'public_facilities' => $request->public_facilities,
                 'price' => $request->price,
                 'year_built' => $request->year_built,
                 'location' => $request->location,
-                'currency' => $request->currency,
+                'currency_id' => $request->currency_id,
+                'payment_period_id' => $request->payment_period_id,
+                'is_available' => $request->is_available,
                 'property_size' => $request->property_size,
                 'owner' => $request->owner_id,
                 'zippy_id' => $zippy_id
@@ -230,7 +239,7 @@ class AgentController extends Controller
 
                 return response()->json(['response' => "success", 'message' => 'Property created successfully.',  'data' => $property]);
             }
-            return response()->json(['success' => true, 'message' => 'Property created successfully.']);
+            // return response()->json(['success' => true, 'message' => 'Property created successfully.']);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
@@ -244,7 +253,7 @@ class AgentController extends Controller
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
             $total_referrals =  User::where('referrer_id', $user_id)->count();
             $toal_properties = Property::where('agent_id', $user_id)->count();
-            return response()->json(['response' => 'success', 'message' => 'Totals fetched successfully.', 'data' => ['total_referrals' => $total_referrals, 'toal_properties' => $toal_properties]]);
+            return response()->json(['response' => 'success', 'message' => 'Totals fetched successfully.', 'data' => ['total_referrals' => $total_referrals, 'total_properties' => $toal_properties]]);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['success' => false, 'message' => $th->getMessage()]);

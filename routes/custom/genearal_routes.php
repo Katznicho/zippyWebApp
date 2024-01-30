@@ -10,3 +10,6 @@ Route::get("getAllAmenities", [GeneralController::class, "getAllAmenities"]);
 Route::get("getAllCategories", [GeneralController::class, "getAllCategories"]);
 Route::post("profileUpload", [FileUploadController::class, "profileUpload"]);
 Route::post("uploadIdImages", [FileUploadController::class, "uploadIdImages"]);
+Route::get("getAllPropertyStatuses", [GeneralController::class, "getAllPropertyStatuses"]);
+Route::get("getAllCurrencies", [GeneralController::class, "getAllCurrencies"]);
+Route::get("getAllPaymentPeriods", [GeneralController::class, "getAllPaymentPeriods"]);

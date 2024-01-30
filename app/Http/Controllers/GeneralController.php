@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Amenity;
 use App\Models\Category;
+use App\Models\Currency;
+use App\Models\PaymentPeriod;
+use App\Models\PropertyStatus;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -53,6 +56,57 @@ class GeneralController extends Controller
                 [
                     'response' => "success",
                     "data" => $categories
+                ],
+                201
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function getAllPropertyStatus(Request $request)
+    {
+        try {
+            $propertyStatus =  PropertyStatus::all();
+            return response()->json(
+                [
+                    'response' => "success",
+                    "data" => $propertyStatus
+                ],
+                201
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function getAllCurrencies(Request $request)
+    {
+        try {
+            $currencies =  Currency::all();
+            return response()->json(
+                [
+                    'response' => "success",
+                    "data" => $currencies
+                ],
+                201
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function getAllPaymentPeriods(Request $request)
+    {
+        try {
+            $paymentPeriods =  PaymentPeriod::all();
+            return response()->json(
+                [
+                    'response' => "success",
+                    "data" => $paymentPeriods
                 ],
                 201
             );

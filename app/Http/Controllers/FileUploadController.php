@@ -12,7 +12,7 @@ class FileUploadController extends Controller
         $request->validate(['cover_image' => 'required', "images" => "required|array|min:4|max:4", "images.*" => "required"]);
 
         // Store all ID images under one folder
-        $destination_path = 'public/images/properties';
+        $destination_path = 'public/properties';
 
         // Store the IDs in their designated folder
         // $one = $request->frontID->store($destination_path);
@@ -42,18 +42,18 @@ class FileUploadController extends Controller
         $four = str_replace($destination_path . '/', '', $four);
 
         // Return only the ID name
-        return response(['message' => 'success', 'data' => ['cover_image' => $cover_image, 'one' => $one, 'two' => $two, 'three' => $three, 'four' => $four]], 201);
+        return response()->json(['message' => 'success', 'data' => ['cover_image' => $cover_image, 'one' => $one, 'two' => $two, 'three' => $three, 'four' => $four]], 201);
     }
 
     public function profileUpload(Request $request)
     {
         $request->validate(['profile_pic' => 'required']);
         // Store all ID images under one folder
-        $destination_path = 'public/images/profile';
+        $destination_path = 'public/profile';
         //store the in a folder
         $profile_picture = $request->profile_pic->store($destination_path);
         //return the name of the images
         $pic_path = str_replace($destination_path . '/', '', $profile_picture);
-        return response(['message' => 'success', 'data' => ['profile_pic' => $pic_path]], 201);
+        return response()->json(['message' => 'success', 'data' => ['profile_pic' => $pic_path]], 201);
     }
 }

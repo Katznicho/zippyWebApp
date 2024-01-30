@@ -93,7 +93,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     //user has many properties
     public function properties(): HasMany
     {
-        return $this->hasMany(Property::class);
+        return $this->hasMany(Property::class, 'owner_id');
     }
 
     //user has many bookings

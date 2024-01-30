@@ -66,18 +66,15 @@ class PropertyResource extends Resource
                         Forms\Components\TextInput::make('description')
                             ->required()
                             ->maxLength(255),
-                        // Forms\Components\FileUpload::make('cover_image')
-                        //     ->image(),
-                        // Forms\Components\TextInput::make('images')
-                        //     ->maxLength(255),
-                        // Repeater::make('images')
-                        //     ->schema([
-                        //         Forms\Components\Select::make("amenity_id")
 
-                        //             ->required()
-                        //             ->options(Amenity::all()->pluck("name", "id"))
-
-                        //     ]),
+                        Repeater::make('public_facilities')
+                            ->schema([
+                                Forms\Components\TextInput::make('public_facilities')
+                                    ->required()
+                            ])
+                            ->addActionLabel('Add Facility')
+                            ->collapsible()
+                            ->label("Add Public Facilities"),
 
                         Repeater::make('amenityProperties')
                             ->relationship('amenityProperties')
@@ -116,26 +113,33 @@ class PropertyResource extends Resource
                             ->required()
                             ->numeric()
                             ->default(0),
-                        Forms\Components\TextInput::make('number_of_rooms')
-                            ->required()
-                            ->numeric()
-                            ->default(0),
-                        Forms\Components\TextInput::make('room_type')
-                            ->maxLength(255),
+
+
                         Forms\Components\TextInput::make('furnishing_status')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('status')
-                            ->required()
-                            ->maxLength(255),
+                        Forms\Components\Select::make('status_id')
+                            ->relationship('status', "name")
+                            ->label("Property Status")
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Forms\Components\Select::make('payment_period_id')
+                            ->relationship('paymentPeriod', "name")
+                            ->label("Payment Period")
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('price')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('zippy_id')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('currency')
-                            ->required()
-                            ->maxLength(255)
-                            ->default('UGX'),
+                        Forms\Components\Select::make('currency_id')
+                            ->relationship('currency', "name")
+                            ->label("Currency")
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('property_size')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('year_built')
@@ -200,23 +204,26 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('number_of_baths')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('number_of_rooms')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('room_type')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('furnishing_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('currency')
+                Tables\Columns\TextColumn::make('currency.name')
                     ->searchable()
                     ->label('Currency')
                     ->toggleable()
                     ->copyable()
                     ->label('Currency'),
+                Tables\Columns\TextColumn::make('status.name')
+                    ->searchable()
+                    ->label('Property Status')
+                    ->toggleable()
+                    ->copyable(),
+                Tables\Columns\TextColumn::make('paymentPeriod.name')
+                    ->searchable()
+                    ->label('Payment Period')
+                    ->toggleable()
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('property_size')
                     ->searchable()
                     ->sortable()
@@ -309,7 +316,7 @@ class PropertyResource extends Resource
         return [
             //
             // RelationManagers::
-            RelationManagers\AmenitiesRelationManager::class,
+            // RelationManagers\AmenitiesRelationManager::class,
         ];
     }
 
