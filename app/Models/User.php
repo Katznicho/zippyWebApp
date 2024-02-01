@@ -50,7 +50,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'is_new_user',
         'referrer_id',
         'lat',
-        'long'
+        'long',
+        'property_owner_verified'
     ];
 
     /**

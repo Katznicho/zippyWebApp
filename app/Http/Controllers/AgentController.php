@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AccountCreation;
+use App\Mail\UserVerification;
 use App\Models\Property;
 use App\Models\User;
 use App\Traits\MessageTrait;
@@ -31,7 +32,13 @@ class AgentController extends Controller
 
 
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+            // Generate a random OTP code
+            // $otpCode = 123456;
+            $otpCode = random_int(100000, 999999);
+
             $password = Str::random(8);
+
+
 
             $user = User::create([
                 'email' => $request->email,
@@ -40,23 +47,21 @@ class AgentController extends Controller
                 'password' => Hash::make($password),
                 'name' => $request->name,
                 'role' => config("users.Roles.Property Owner"),
+                'otp' => Hash::make($otpCode),
+                'otp_send_time' => now(),
             ]);
+
+            try {
+                // Send the OTP code to the user's email
+                Mail::to($user->email)->send(new UserVerification($user, $otpCode));
+            } catch (\Throwable $th) {
+                // throw $th;
+            }
+            $message = "Hello $request->name thank you for registering with zippy as a Property Owner. Your OTP code is $otpCode.";
+            $this->sendMessage($request->phone_number, $message);
+
+
             if ($user) {
-                $role = config("users.Roles.Property Owner");
-                try {
-                    // Send the OTP code to the user's email
-                    Mail::to($request->email)->send(new AccountCreation($request->name, $password,  config("users.Roles.Property Owner")));
-                } catch (\Throwable $th) {
-                    // throw $th;
-                    // dd($th);
-                }
-
-                $message = "Hello $request->name, your account with  Zippy  as a $role has been created. Please use the following : $password  as your one time password to login in the app 
-                If you dont have the app please contact us or download the app from the play store
-                <a href='https://play.google.com/store/apps/details?id=com.otp.otp'>https://play.google.com/store/apps/details?id=com.otp.otp</a>";
-
-                // $this->sendMessage($request->phone_number, $message);
-
                 return response()->json([
                     'response' => 'success',
                     'message' => 'Property Owner created successfully',
@@ -69,6 +74,66 @@ class AgentController extends Controller
                     'user' => $user
                 ], 201);
             }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['response' => 'failure', 'message' => $th->getMessage()], 401);
+        }
+    }
+
+
+
+    public  function  verifyPropertyOwnerPhoneNumber(Request $request)
+    {
+        try {
+            $request->validate([
+                'phone_number' => 'required|string|exists:users,email',
+                'otp' => 'required|size:6',
+            ]);
+            // Find the user
+            $user = User::where('phone_number', $request->phone_number)->first();
+
+            // Check if the OTP code is correct
+            if (!Hash::check($request->otp, $user->otp)) {
+                return response()->json([
+                    'response' => 'failure',
+                    'errors' => [
+                        'otp' => ['Incorrect OTP. Check your email or phone number for OTP sent to you'],
+                    ],
+                    'message' => 'Incorrect OTP. Check your email or phone number for OTP sent to you',
+                ], 401);
+            }
+
+            $password = Str::random(8);
+
+            $role = config("users.Roles.Property Owner");
+            try {
+                // Send the OTP code to the user's email
+                Mail::to($request->email)->send(new AccountCreation($request->name, $password,  config("users.Roles.Property Owner")));
+            } catch (\Throwable $th) {
+                // throw $th;
+                // dd($th);
+            }
+
+            $message = "Hello $request->name, your account with  Zippy  as a $role has been created. Please use the following : $password  as your one time password to login in the app 
+            If you dont have the app please contact us or download the app from the play store
+            <a href='https://play.google.com/store/apps/details?id=com.otp.otp'>https://play.google.com/store/apps/details?id=com.otp.otp</a>";
+
+            $this->sendMessage($request->phone_number, $message);
+
+            // Update the user's email verification status
+            $user->update([
+                'otp' => null,
+                'otp_send_time' => null,
+                'email_verified_at' => now(),
+                'password' => Hash::make($password),
+                'property_owner_verified' => true
+            ]);
+
+            return response()->json([
+                'response' => 'success',
+                'message' => 'Successfully verified email!',
+                'user' => $user,
+            ], 200);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['response' => 'failure', 'message' => $th->getMessage()], 401);
