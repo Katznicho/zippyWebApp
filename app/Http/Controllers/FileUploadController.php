@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Traits\UserTrait;
 use Illuminate\Http\Request;
 
 class FileUploadController extends Controller
 {
+    use UserTrait;
     //
     public function uploadIdImages(Request $request)
     {
@@ -47,6 +50,7 @@ class FileUploadController extends Controller
 
     public function profileUpload(Request $request)
     {
+        $user_id = $this->getCurrentLoggedUserBySanctum()->id;
         $request->validate(['profile_pic' => 'required']);
         // Store all ID images under one folder
         $destination_path = 'public/profile';
@@ -54,6 +58,8 @@ class FileUploadController extends Controller
         $profile_picture = $request->profile_pic->store($destination_path);
         //return the name of the images
         $pic_path = str_replace($destination_path . '/', '', $profile_picture);
+        //update the user avatar
+        User::where('id', $user_id)->update(['avatar' => $pic_path]);
         return response()->json(['message' => 'success', 'data' => ['profile_pic' => $pic_path]], 201);
     }
 }
