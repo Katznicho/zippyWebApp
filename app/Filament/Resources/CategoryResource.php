@@ -64,7 +64,9 @@ class CategoryResource extends Resource
                     ->toggleable()
                     ->copyable()
                     ->label('Name'),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk("categories")
+                    ->circular(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

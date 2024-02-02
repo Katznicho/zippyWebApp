@@ -8,18 +8,18 @@
     }
 </style>
 <x-mail::message>
-Hello {{ $user->name }},
+    Hello {{ $user->name }},
 
-Thank you for signing up with {{ config('app.name') }}  as a {{ $user->role }}.
+    Thank you for signing up with {{ config('app.name') }} as a {{ $user->role }}.
 
-Please use the following code to verify your email:
+    Please use the following code to verify your phone number:
     <p class="otp-code"> {{ $verificationCode }}</p>
 
- as a one time code.
+    as a one time code.
 
-Enter the code on the verification screen to complete your registration.
-The code will expire in 10 minutes.
+    Enter the code on the verification screen to complete your registration.
+    The code will expire in 10 minutes.
 
-Thanks,<br>
-{{ config('app.name') }}
+    Thanks,<br>
+    {{ config('app.name') }}
 </x-mail::message>

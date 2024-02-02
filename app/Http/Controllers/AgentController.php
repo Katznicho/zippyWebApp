@@ -86,7 +86,7 @@ class AgentController extends Controller
     {
         try {
             $request->validate([
-                'phone_number' => 'required|string|exists:users,email',
+                'phone_number' => 'required|string|exists:users,phone_number',
                 'otp' => 'required|size:6',
             ]);
             // Find the user
@@ -316,7 +316,7 @@ class AgentController extends Controller
         try {
             //code...
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
-            $total_referrals =  User::where('referrer_id', $user_id)->count();
+            $total_referrals =  User::where('referrer_id', $user_id)->where("property_owner_verified", true)->count();
             $toal_properties = Property::where('agent_id', $user_id)->count();
             return response()->json(['response' => 'success', 'message' => 'Totals fetched successfully.', 'data' => ['total_referrals' => $total_referrals, 'total_properties' => $toal_properties]]);
         } catch (\Throwable $th) {

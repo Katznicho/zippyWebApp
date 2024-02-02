@@ -72,7 +72,6 @@ class AmenityResource extends Resource
                     ->disk('amentities')
                     ->label('Amentity Image')
                     ->circular(),
-                TextColumn::make('image')->label('Image')->formatStateUsing(fn (string $state): string => url($state)),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

@@ -72,7 +72,10 @@ class ServiceResource extends Resource
                     ->toggleable()
                     ->copyable()
                     ->label('Description'),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->disk("services")
+                    ->circular()
+                    ->label('Image'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
