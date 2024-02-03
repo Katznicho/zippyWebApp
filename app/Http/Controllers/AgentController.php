@@ -200,7 +200,10 @@ class AgentController extends Controller
                     'amenities',
                     'category',
                     'amenityProperties',
-                    'propertyServices'
+                    'propertyServices',
+                     'paymentPeriod',
+                     'status',
+                     'currency'
 
                 ])
                 ->paginate($limit, ['*'], 'page', $page);

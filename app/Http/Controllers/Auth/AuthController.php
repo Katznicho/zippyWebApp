@@ -354,7 +354,7 @@ class AuthController extends Controller
         ]);
 
         // Find the user
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('phone_number', $request->phone_number)->first();
 
         // Check if the OTP code is correct
         if (!Hash::check($request->otp, $user->otp)) {

@@ -65,7 +65,7 @@ class GeneralController extends Controller
         }
     }
 
-    public function getAllPropertyStatus(Request $request)
+    public function getAllPropertyStatuses(Request $request)
     {
         try {
             $propertyStatus =  PropertyStatus::all();
