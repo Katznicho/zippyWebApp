@@ -13,12 +13,20 @@ class Category extends Model
         'name',
         'description',
         'image'
-        
+
     ];
 
 
     public function properties()
     {
         return $this->hasMany(Property::class);
+    }
+
+    public function getImageAttribute()
+    {
+        $imagePath = $this->attributes['image'];
+
+        // Generate the full URL using the asset function
+        return $imagePath ? asset("storage/{$imagePath}") : null;
     }
 }
