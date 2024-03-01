@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Notification;
 use App\Models\Property;
 use App\Models\PropertyNotification;
 use App\Models\User;
@@ -71,6 +72,7 @@ trait ZippyAlertTrait
                         // Calculate the score for each property
                         $score = 0.0;
 
+
                         // Calculate score for cost
                         $score += $this->calculateCost($property->price, $cost);
                         // Calculate score for distance
@@ -84,14 +86,27 @@ trait ZippyAlertTrait
                         // Check if the overall score exceeds the threshold
                         if ($score >= $this->$threshold) {
                             // Send message to the user
-                            // $this->sendMessage($property->user->phone_number, "Property found: " . $property->name);
+                            $notiification = Notification::create([
+                                'user_id' => $property->user_id,
+                                'title' => "Property Zippy Alert",
+                                'message' => "Hello " . $user->name . ",\n\n" . "Your Zippy Alert has been triggered.\n\n" . "Regards,\n" . "Zippy Team",
+                            ]);
+
 
                             //create a property notification
                             $property_notification = PropertyNotification::create([
                                 'property_id' => $property->id,
                                 'user_id' => $property->user_id,
                                 'matching_percentage' => $score,
-                                'is_enabled' => true
+                                'notification_id' => $notiification->id,
+                                'is_enabled' => true,
+                                'cost_percentage' => $this->calculateCost($property->price, $cost),
+                                'location_percentage' => $this->calculateDistance($property->latitude, $property->longitude, $latitude, $longitude),
+                                'services_percentage' => $this->calculateServicesPercentage($property->services, $services),
+                                'amenities_percentage' => $this->calculateAmenitiesPercentage($property->amenities, $amenities),
+                                'rooms_percentage' => $this->calculateRoomPercentage($property->rooms, $rooms),
+                                'bathrooms_percentage' => $this->calculateRoomPercentage($property->rooms, $rooms)
+
                             ]);
                         }
                     }
@@ -100,6 +115,7 @@ trait ZippyAlertTrait
             // Additional code after processing properties...
         } catch (\Throwable $th) {
             // Handle exceptions if needed
+            return response()->json(['error' => $th->getMessage()], 500);
         }
     }
 
