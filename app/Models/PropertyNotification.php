@@ -15,6 +15,13 @@ class PropertyNotification extends Model
         'user_id',
         'is_enabled',
         'match_percentage',
+        'cost_percentage',
+        'location_percentage',
+        'services_percentage',
+        'amenities_percentage',
+        'rooms_percentage',
+        'bathrooms_percentage',
+        'notification_id'
     ];
 
 
@@ -27,5 +34,11 @@ class PropertyNotification extends Model
     public function property()
     {
         return $this->belongsTo(Property::class);
+    }
+
+
+    public function notification()
+    {
+        return $this->belongsTo(Notification::class);
     }
 }

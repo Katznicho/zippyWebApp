@@ -1,0 +1,256 @@
+<?php
+
+namespace App\Traits;
+
+use App\Models\Property;
+use App\Models\PropertyNotification;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+trait ZippyAlertTrait
+{
+
+    /**
+     * @var float The cost percentage
+     */
+    protected $costPercentage = 0.3;
+
+    /**
+     * @var float The location percentage
+     */
+    protected $locationPercentage = 0.3;
+
+    /**
+     * @var float The service percentage
+     */
+    protected $servicesPercentage = 0.1;
+
+    /**
+     *@var float The amenities percentage 
+     */
+    protected $amenitiesPercentage = 0.1;
+
+    /**
+     * @var float $rooms The number of rooms
+     */
+
+    protected $roomsPercentage = 0.15;
+
+    /**
+     * @var float $bathrooms The number of bathrooms
+     */
+
+    protected $bathroomsPercentage = 0.05;
+
+    /**
+     *@var float $threshold The threshold
+     */
+
+    protected $threshold = 0.7;
+
+    public function zippySearchAlgorithm(Request $request, User $user)
+    {
+
+        try {
+
+            $category_id = $request->category_id;
+            $cost = $request->cost;
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
+            $services = $request->services;
+            $amenities = $request->amenities;
+            $rooms = $request->rooms;
+            $bathrooms = $request->bathrooms;
+
+            $threshold = 0.7; // Adjust the threshold as needed
+
+            Property::where('category_id', $category_id)
+                ->chunk(100, function ($properties) use ($cost, $latitude, $longitude, $services, $amenities, $rooms, $bathrooms, $threshold) {
+                    // Loop through each chunk of properties
+                    foreach ($properties as $property) {
+                        // Calculate the score for each property
+                        $score = 0.0;
+
+                        // Calculate score for cost
+                        $score += $this->calculateCost($property->price, $cost);
+                        // Calculate score for distance
+                        $score += $this->calculateDistance($property->latitude, $property->longitude, $latitude, $longitude);
+                        $score += $this->calculateRoomPercentage($property->rooms, $rooms);
+                        $score += $this->calculateBathroomPercentage($property->bathrooms, $bathrooms);
+                        $score += $this->calculateServicesPercentage($property->services, $services);
+                        $score += $this->calculateAmenitiesPercentage($property->amenities, $amenities);
+
+
+                        // Check if the overall score exceeds the threshold
+                        if ($score >= $this->$threshold) {
+                            // Send message to the user
+                            // $this->sendMessage($property->user->phone_number, "Property found: " . $property->name);
+
+                            //create a property notification
+                            $property_notification = PropertyNotification::create([
+                                'property_id' => $property->id,
+                                'user_id' => $property->user_id,
+                                'matching_percentage' => $score,
+                                'is_enabled' => true
+                            ]);
+                        }
+                    }
+                });
+
+            // Additional code after processing properties...
+        } catch (\Throwable $th) {
+            // Handle exceptions if needed
+        }
+    }
+
+    // Helper method to calculate distance between two points (latitude and longitude)
+    private function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2)
+    {
+        // Calculate the distance between two points using Haversine formula
+        $earthRadius = 6371; // Radius of the Earth in kilometers
+        $deltaLatitude = deg2rad($latitude2 - $latitude1);
+        $deltaLongitude = deg2rad($longitude2 - $longitude1);
+        $a = sin($deltaLatitude / 2) * sin($deltaLatitude / 2) +
+            cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) *
+            sin($deltaLongitude / 2) * sin($deltaLongitude / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c; // Distance in kilometers
+
+        // Assign matching percentage based on distance ranges
+        if ($distance >= 1 && $distance < 2) {
+            return 0.3;
+        } elseif ($distance >= 2 && $distance < 5) {
+            return 0.2;
+        } elseif ($distance >= 5 && $distance < 10) {
+            return 0.1;
+        } else {
+            return 0;
+        }
+    }
+
+
+    // Helper method to calculate match percentage between two arrays (e.g., services, amenities)
+    private function calculateMatchPercentage($array1, $array2)
+    {
+        // Calculation logic for match percentage
+    }
+
+    // Helper method to send messages
+    private function sendMessage($phoneNumber, $message)
+    {
+        // Logic to send messages
+    }
+
+    private function calculateCost($propertyCost, $userEstimatedCost)
+    {
+        if ($userEstimatedCost < $propertyCost) {
+            // get the percentage
+            $percentage = $userEstimatedCost / $propertyCost;
+
+            // if the percentage is between 1-0.7 give 0.3, if between 0.7-0.3 give 0.2, if between 0.3-0.1 give 0.1
+            if ($percentage >= 0.7) {
+                return 0.3;
+            } elseif ($percentage >= 0.3) {
+                return 0.2;
+            } elseif ($percentage >= 0.1) {
+                return 0.1;
+            }
+        } else {
+            // get the percentage
+            $percentage = $propertyCost / $userEstimatedCost;
+
+            // if the percentage is between 1-0.7 give 0.1, if between 0.7-0.3 give 0.2, if between 0.3-0.1 give 0.3
+            if ($percentage >= 0.7) {
+                return 0.1;
+            } elseif ($percentage >= 0.3) {
+                return 0.2;
+            } elseif ($percentage >= 0.1) {
+                return 0.3;
+            }
+        }
+    }
+
+    private function calculateRoomPercentage($propertyRooms, $userRooms)
+    {
+        // Calculate the percentage difference between property rooms and user preference
+        $roomDifference = abs($propertyRooms - $userRooms);
+
+        // Assign matching percentage based on the difference, ensuring the maximum percentage is 0.15
+        if ($roomDifference == 0) {
+            return 0.15; // Exact match, maximum percentage
+        } elseif ($roomDifference == 1) {
+            return 0.1; // One room difference
+        } elseif ($roomDifference == 2) {
+            return 0.05; // Two rooms difference
+        } else {
+            return 0; // No match
+        }
+    }
+
+    private function calculateBathroomPercentage($propertyBathrooms, $userBathrooms)
+    {
+        // Calculate the percentage difference between property bathrooms and user preference
+        $bathroomDifference = abs($propertyBathrooms - $userBathrooms);
+
+        // Assign matching percentage based on the difference, ensuring the maximum percentage is 0.05
+        if ($bathroomDifference == 0) {
+            return 0.05; // Exact match, maximum percentage
+        } elseif ($bathroomDifference == 1) {
+            return 0.03; // One bathroom difference
+        } elseif ($bathroomDifference == 2) {
+            return 0.02; // Two bathrooms difference
+        } else {
+            return 0; // No match
+        }
+    }
+
+    private function calculateAmenitiesPercentage($propertyAmenities, $userAmenities)
+    {
+        // Check if the user amenities array is empty
+        if (empty($userAmenities)) {
+            return 0.1; // Perfect match, maximum percentage
+        }
+
+        // Check if all amenity IDs in userAmenities exist in propertyAmenities
+        $commonAmenities = array_intersect($propertyAmenities, $userAmenities);
+
+        // Calculate the percentage of common amenities
+        $percentage = count($commonAmenities) / count($userAmenities);
+
+        // Assign matching percentage based on the percentage of common amenities
+        if ($percentage == 1) {
+            return 0.1; // All user amenities exist in property amenities, maximum percentage
+        } elseif ($percentage >= 0.8) {
+            return 0.08; // 80% or more of user amenities exist in property amenities
+        } elseif ($percentage >= 0.5) {
+            return 0.05; // 50% or more of user amenities exist in property amenities
+        } else {
+            return 0; // No match
+        }
+    }
+
+    private function calculateServicesPercentage($propertyServices, $userServices)
+    {
+        // Check if the user services array is empty
+        if (empty($userServices)) {
+            return 0.1; // Perfect match, maximum percentage
+        }
+
+        // Check if all service IDs in userServices exist in propertyServices
+        $commonServices = array_intersect($propertyServices, $userServices);
+
+        // Calculate the percentage of common services
+        $percentage = count($commonServices) / count($userServices);
+
+        // Assign matching percentage based on the percentage of common services
+        if ($percentage == 1) {
+            return 0.1; // All user services exist in property services, maximum percentage
+        } elseif ($percentage >= 0.8) {
+            return 0.08; // 80% or more of user services exist in property services
+        } elseif ($percentage >= 0.5) {
+            return 0.05; // 50% or more of user services exist in property services
+        } else {
+            return 0; // No match
+        }
+    }
+}

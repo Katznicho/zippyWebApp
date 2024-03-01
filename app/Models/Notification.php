@@ -15,7 +15,10 @@ class Notification extends Model
         'title',
         'body',
         'is_read',
-        'property_id'
+        'property_id',
+        'type',
+        'message',
+        
     ];
 
 

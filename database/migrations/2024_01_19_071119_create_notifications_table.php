@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string("type"); //property , payment ,transaction, points
             $table->foreignId("property_id")->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId("payment_id")->nullable()->constrained()->cascadeOnDelete();
+            $table->string("title")->nullable();
+            $table->string("message")->nullable();
             $table->boolean('is_read')->default(false);
             $table->string('title');
             $table->timestamps();

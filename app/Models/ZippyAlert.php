@@ -21,6 +21,9 @@ class ZippyAlert extends Model
         'number_of_bedrooms',
         'number_bathrooms',
         'is_active',
+        'latitude',
+        'longitude',
+        'address'
     ];
 
     protected $cast = [

@@ -76,6 +76,9 @@ class UserController extends Controller
                 'minimum_price' => 'required',
                 'maximum_price' => 'required',
                 'category_id' => 'required',
+                'longitude' => 'required',
+                'latitude' => 'required',
+                'address' => 'required',
             ]);
             $userAlert =  ZippyAlert::create([
                 'user_id' => $user_id,
@@ -87,18 +90,11 @@ class UserController extends Controller
                 'contact_options' => json_encode($request->contact_options),
                 'number_of_bedrooms' => $request->number_of_bedrooms,
                 'number_bathrooms' => $request->number_bathrooms,
-                'is_active' => true
+                'is_active' => true,
+                'longitude' => $request->longitude,
+                'latitude' => $request->latitude,
+                'address' => $request->address
             ]);
-            // if ($userAlert) {
-            //     //reduce user current points by 100
-            //     $user->current_points -= 100;
-            //     $user->save();
-            //     PointUsage::create([
-            //         'user_id' => $user_id,
-            //         'points' => 100,
-            //         'reason' => "Property Alert created",
-            //     ]);
-            // }
 
             $message = "Hello " . $user->name . ",\n\n"  . "Your Zippy Alert has been created.\n\n" . "Regards,\n" . "Zippy Team";
             if ($user->phone_number) {
