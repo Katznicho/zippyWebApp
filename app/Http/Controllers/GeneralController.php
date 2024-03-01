@@ -52,7 +52,7 @@ class GeneralController extends Controller
     {
         try {
             //code...
-            $categories =  Category::all();
+            $categories =  Category::OrderBy('id', 'desc')->get();
             return response()->json(
                 [
                     'response' => "success",

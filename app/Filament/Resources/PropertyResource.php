@@ -98,7 +98,8 @@ class PropertyResource extends Resource
                                     ->options(Amenity::all()->pluck("name", "id"))
                                     ->searchable()
 
-                            ]),
+                            ])
+                            ,
 
 
                         Forms\Components\Toggle::make('is_available')

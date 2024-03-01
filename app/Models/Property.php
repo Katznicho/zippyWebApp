@@ -110,4 +110,22 @@ class Property extends Model
     {
         return $this->belongsTo(PaymentPeriod::class);
     }
+
+    public function getCoverImageAttribute()
+    {
+        $imagePath = $this->attributes['cover_image'];
+
+        // Generate the full URL using the asset function
+        return $imagePath ? asset("storage/properties/{$imagePath}") : null;
+    }
+
+    // Accessor for returning images as URLs
+    public function getImagesAttribute($value)
+    {
+        $images = [];
+        foreach ($value as $imagePath) {
+            $images[] = $imagePath ? asset("storage/properties/{$imagePath}") : null;
+        }
+        return $images;
+    }
 }

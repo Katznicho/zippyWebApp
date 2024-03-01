@@ -52,7 +52,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'lat',
         'long',
         'property_owner_verified',
-        'avatar'
+        'avatar',
+        'points',
+        'current_points'
     ];
 
     /**
@@ -107,5 +109,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function referrals()
     {
         return $this->hasMany(User::class, 'referrer_id');
+    }
+
+  // a user uses points
+    public function pointUsages()
+    {
+        return $this->hasMany(PointUsage::class);
     }
 }

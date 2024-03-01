@@ -13,7 +13,7 @@ trait MessageTrait
         $key =  Config::get('services.AT.apiKey');
         $username =  Config::get('services.AT.AppName');
 
-        $phoneNumber = $this->formatMobileInternational($phoneNumber);
+        $phoneNumber = $phoneNumber;
 
         $curl = curl_init();
 
