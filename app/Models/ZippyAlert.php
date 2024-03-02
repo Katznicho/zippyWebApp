@@ -23,7 +23,8 @@ class ZippyAlert extends Model
         'is_active',
         'latitude',
         'longitude',
-        'address'
+        'address',
+        'cost'
     ];
 
     protected $cast = [

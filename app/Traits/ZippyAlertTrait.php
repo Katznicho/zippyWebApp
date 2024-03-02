@@ -53,8 +53,8 @@ trait ZippyAlertTrait
     {
 
         try {
-
             $category_id = $request->category_id;
+
             $cost = $request->cost;
             $latitude = $request->latitude;
             $longitude = $request->longitude;
@@ -63,65 +63,81 @@ trait ZippyAlertTrait
             $rooms = $request->rooms;
             $bathrooms = $request->bathrooms;
 
+
             $threshold = 0.7; // Adjust the threshold as needed
 
-            Property::where('category_id', $category_id)
-                ->chunk(100, function ($properties) use ($cost, $latitude, $longitude, $services, $amenities, $rooms, $bathrooms, $threshold) {
-                    // Loop through each chunk of properties
-                    foreach ($properties as $property) {
-                        // Calculate the score for each property
-                        $score = 0.0;
+            $properties =  Property::where('category_id', $category_id)->get();
+            // Loop through each chunk of properties
+            foreach ($properties as $property) {
 
 
-                        // Calculate score for cost
-                        $score += $this->calculateCost($property->price, $cost);
-                        // Calculate score for distance
-                        $score += $this->calculateDistance($property->latitude, $property->longitude, $latitude, $longitude);
-                        $score += $this->calculateRoomPercentage($property->rooms, $rooms);
-                        $score += $this->calculateBathroomPercentage($property->bathrooms, $bathrooms);
-                        $score += $this->calculateServicesPercentage($property->services, $services);
-                        $score += $this->calculateAmenitiesPercentage($property->amenities, $amenities);
+                // Calculate the score for each property
+                $score = 0.0;
+                // Calculate score for cost
+                $costPercentage = $this->calculateCost(intval($property->price),  intval($cost));
+                $score += $costPercentage;
 
+                // Calculate score for distance
+                $distancePercentage =  $this->calculateDistance($property->lat, $property->long, $latitude, $longitude);
 
-                        // Check if the overall score exceeds the threshold
-                        if ($score >= $this->$threshold) {
-                            // Send message to the user
-                            $notiification = Notification::create([
-                                'user_id' => $property->user_id,
-                                'title' => "Property Zippy Alert",
-                                'message' => "Hello " . $user->name . ",\n\n" . "Your Zippy Alert has been triggered.\n\n" . "Regards,\n" . "Zippy Team",
-                            ]);
+                $score += $distancePercentage;
 
+                $roomPecentage =  $this->calculateRoomPercentage($property->rooms, $rooms);
+                $score += $roomPecentage;
 
-                            //create a property notification
-                            $property_notification = PropertyNotification::create([
-                                'property_id' => $property->id,
-                                'user_id' => $property->user_id,
-                                'matching_percentage' => $score,
-                                'notification_id' => $notiification->id,
-                                'is_enabled' => true,
-                                'cost_percentage' => $this->calculateCost($property->price, $cost),
-                                'location_percentage' => $this->calculateDistance($property->latitude, $property->longitude, $latitude, $longitude),
-                                'services_percentage' => $this->calculateServicesPercentage($property->services, $services),
-                                'amenities_percentage' => $this->calculateAmenitiesPercentage($property->amenities, $amenities),
-                                'rooms_percentage' => $this->calculateRoomPercentage($property->rooms, $rooms),
-                                'bathrooms_percentage' => $this->calculateRoomPercentage($property->rooms, $rooms)
+                $bathroomsPercentage = $this->calculateBathroomPercentage($property->bathrooms, $bathrooms);
+                $score += $bathroomsPercentage;
+                $servicesPercentage = $this->calculateServicesPercentage($property->getServicesIdsAttribute(), $services);
+                $score += $servicesPercentage;
+                $amenitiesPercentage = $this->calculateAmenitiesPercentage($property->getAmenitiesIdsAttribute(), $amenities);
+                $score += $amenitiesPercentage;
 
-                            ]);
-                        }
-                    }
-                });
+                // return $score;
+
+                // Check if the overall score exceeds the threshold
+                if ($score >= 0.7) {
+
+                    // Send message to the user
+                    $notiification = Notification::create([
+                        'user_id' => $user->id,
+                        'property_id' => $property->id,
+                        'title' => "Property Zippy Alert",
+                        'message' => "Hello " . $user->name . ",\n\n" . "Your Zippy Alert has been triggered.\n\n" . "Regards,\n" . "Zippy Team",
+                    ]);
+                    //create a property notification
+                    PropertyNotification::create([
+                        'property_id' => $property->id,
+                        'user_id' => $user->id,
+                        'score' => $score,
+                        'match_percentage' => $score,
+                        'notification_id' => $notiification->id,
+                        'is_enabled' => true,
+                        'cost_percentage' => $costPercentage,
+                        'location_percentage' => $distancePercentage,
+                        'services_percentage' => $servicesPercentage,
+                        'amenities_percentage' => $amenitiesPercentage,
+                        'rooms_percentage' => $roomPecentage,
+                        'bathrooms_percentage' => $bathroomsPercentage
+
+                    ]);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
 
             // Additional code after processing properties...
         } catch (\Throwable $th) {
             // Handle exceptions if needed
-            return response()->json(['error' => $th->getMessage()], 500);
+            return $th->getMessage();
         }
     }
 
     // Helper method to calculate distance between two points (latitude and longitude)
     private function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2)
     {
+
         // Calculate the distance between two points using Haversine formula
         $earthRadius = 6371; // Radius of the Earth in kilometers
         $deltaLatitude = deg2rad($latitude2 - $latitude1);
@@ -133,7 +149,7 @@ trait ZippyAlertTrait
         $distance = $earthRadius * $c; // Distance in kilometers
 
         // Assign matching percentage based on distance ranges
-        if ($distance >= 1 && $distance < 2) {
+        if ($distance >= 1 && $distance < 2 || $distance == 0) {
             return 0.3;
         } elseif ($distance >= 2 && $distance < 5) {
             return 0.2;
@@ -152,10 +168,7 @@ trait ZippyAlertTrait
     }
 
     // Helper method to send messages
-    private function sendMessage($phoneNumber, $message)
-    {
-        // Logic to send messages
-    }
+
 
     private function calculateCost($propertyCost, $userEstimatedCost)
     {
@@ -175,13 +188,14 @@ trait ZippyAlertTrait
             // get the percentage
             $percentage = $propertyCost / $userEstimatedCost;
 
+
             // if the percentage is between 1-0.7 give 0.1, if between 0.7-0.3 give 0.2, if between 0.3-0.1 give 0.3
             if ($percentage >= 0.7) {
-                return 0.1;
+                return 0.3;
             } elseif ($percentage >= 0.3) {
                 return 0.2;
             } elseif ($percentage >= 0.1) {
-                return 0.3;
+                return 0.1;
             }
         }
     }

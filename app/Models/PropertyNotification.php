@@ -21,7 +21,8 @@ class PropertyNotification extends Model
         'amenities_percentage',
         'rooms_percentage',
         'bathrooms_percentage',
-        'notification_id'
+        'notification_id',
+        'score'
     ];
 
 

@@ -57,6 +57,12 @@ class Property extends Model
             ->withPivot('property_id', 'amenity_id');
     }
 
+    //get only amenities ids
+    public function getAmenitiesIdsAttribute()
+    {
+        return $this->amenities->pluck('id')->toArray();
+    }
+
     public function amenityProperties(): HasMany
     {
         return $this->hasMany(AmenityProperty::class);
@@ -73,6 +79,12 @@ class Property extends Model
     {
         return $this->belongsToMany(Service::class, 'property_service')
             ->withTimestamps(); // If you want to include timestamps in the pivot table
+    }
+
+    //get only services ids
+    public function getServicesIdsAttribute()
+    {
+        return $this->services->pluck('id')->toArray();
     }
 
 
@@ -120,12 +132,12 @@ class Property extends Model
     }
 
     // Accessor for returning images as URLs
-    public function getImagesAttribute($value)
-    {
-        $images = [];
-        foreach ($value as $imagePath) {
-            $images[] = $imagePath ? asset("storage/properties/{$imagePath}") : null;
-        }
-        return $images;
-    }
+    // public function getImagesAttribute($value)
+    // {
+    //     $images = [];
+    //     foreach ($value as $imagePath) {
+    //         $images[] = $imagePath ? asset("storage/properties/{$imagePath}") : null;
+    //     }
+    //     return $images;
+    // }
 }
