@@ -75,6 +75,7 @@ trait ZippyAlertTrait
                 $score = 0.0;
                 // Calculate score for cost
                 $costPercentage = $this->calculateCost(intval($property->price),  intval($cost));
+                return $costPercentage;
                 $score += $costPercentage;
 
                 // Calculate score for distance
@@ -137,7 +138,6 @@ trait ZippyAlertTrait
     // Helper method to calculate distance between two points (latitude and longitude)
     private function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2)
     {
-
         // Calculate the distance between two points using Haversine formula
         $earthRadius = 6371; // Radius of the Earth in kilometers
         $deltaLatitude = deg2rad($latitude2 - $latitude1);
@@ -172,30 +172,24 @@ trait ZippyAlertTrait
 
     private function calculateCost($propertyCost, $userEstimatedCost)
     {
-        if ($userEstimatedCost < $propertyCost) {
-            // get the percentage
-            $percentage = $userEstimatedCost / $propertyCost;
-
-            // if the percentage is between 1-0.7 give 0.3, if between 0.7-0.3 give 0.2, if between 0.3-0.1 give 0.1
-            if ($percentage >= 0.7) {
-                return 0.3;
-            } elseif ($percentage >= 0.3) {
-                return 0.2;
-            } elseif ($percentage >= 0.1) {
-                return 0.1;
-            }
+        $diff =  $propertyCost - $userEstimatedCost;
+        if ($diff <= 0) {
+            return 0.3;
         } else {
-            // get the percentage
-            $percentage = $propertyCost / $userEstimatedCost;
+            //get 50% of the estimated cost
+            $half_estimated_cost = $diff / 2;
 
-
-            // if the percentage is between 1-0.7 give 0.1, if between 0.7-0.3 give 0.2, if between 0.3-0.1 give 0.3
-            if ($percentage >= 0.7) {
-                return 0.3;
-            } elseif ($percentage >= 0.3) {
-                return 0.2;
-            } elseif ($percentage >= 0.1) {
+            $new_estimate =  $diff / $half_estimated_cost;
+            if ($new_estimate > 0.5) {
+                return 0.0;
+            } else if ($new_estimate >= 0.4 && $new_estimate < 0.5) {
                 return 0.1;
+            } else if ($new_estimate >= 0.3 && $new_estimate < 0.4) {
+                return 0.2;
+            } else if ($new_estimate >= 0.1 && $new_estimate <= 0.2) {
+                return 0.3;
+            } else {
+                return $new_estimate;
             }
         }
     }
