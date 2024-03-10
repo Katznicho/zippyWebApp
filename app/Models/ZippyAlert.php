@@ -19,7 +19,7 @@ class ZippyAlert extends Model
         'maximum_price',
         'contact_options',
         'number_of_bedrooms',
-        'number_bathrooms',
+        'number_of_bathrooms',
         'is_active',
         'latitude',
         'longitude',

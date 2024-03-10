@@ -9,6 +9,7 @@ class PropertyNotification extends Model
 {
     use HasFactory;
 
+    protected $table = 'zippy_property_notifications';
 
     protected $fillable = [
         'property_id',

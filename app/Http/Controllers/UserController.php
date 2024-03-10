@@ -81,26 +81,22 @@ class UserController extends Controller
                 'address' => 'required',
             ]);
 
-            $res = $this->zippySearchAlgorithm($request, $user);
+             $this->zippySearchAlgorithm($request, $user);
 
-            return response()->json(['response' => 'success', 'data' => $res]);
-
-            // $userAlert =  ZippyAlert::create([
-            //     'user_id' => $user_id,
-            //     'category_id' => $request->category_id,
-            //     'services' => json_encode($request->services),
-            //     'amenities' => json_encode($request->amenities),
-            //     'cost' => $request->cost,
-            //     'contact_options' => json_encode($request->contact_options),
-            //     'number_of_bedrooms' => $request->number_of_bedrooms,
-            //     'number_bathrooms' => $request->number_bathrooms,
-            //     'is_active' => true,
-            //     'longitude' => $request->longitude,
-            //     'latitude' => $request->latitude,
-            //     'address' => $request->address
-            // ]);
-
-
+            $userAlert =  ZippyAlert::create([
+                'user_id' => $user_id,
+                'category_id' => $request->category_id,
+                'services' => json_encode($request->services),
+                'amenities' => json_encode($request->amenities),
+                'cost' => $request->cost,
+                'contact_options' => json_encode($request->contact_options),
+                'number_of_bedrooms' => $request->number_of_bedrooms,
+                'number_of_bathrooms' => $request->number_of_bathrooms,
+                'is_active' => true,
+                'longitude' => $request->longitude,
+                'latitude' => $request->latitude,
+                'address' => $request->address
+            ]);
 
             $message = "Hello " . $user->name . ",\n\n"  . "Your Zippy Alert has been created.\n\n" . "Regards,\n" . "Zippy Team";
             if ($user->phone_number) {
