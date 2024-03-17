@@ -39,10 +39,9 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->maxContentWidth(MaxWidth::Full)
-            ->brandName('Zippy')
-            // ->brandLogo(
-            //     'https://cdn-icons-png.flaticon.com/512/300/300221.png'
-            // )
+            ->brandName('YoProperty')
+            ->brandLogo(asset("images/Risidev.png"))
+            ->brandLogoHeight(320)
             ->darkMode(true)
             ->profile()
             ->plugins([

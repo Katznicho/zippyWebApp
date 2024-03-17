@@ -1,0 +1,1 @@
+<img src="{{ asset("images/Risidev.png") }}" alt="Logo" class="h-10">

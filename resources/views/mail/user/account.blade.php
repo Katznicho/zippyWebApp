@@ -21,7 +21,7 @@
     If you dont have the app please contact us or download the app from the play store
 
     <x-mail::button url="https://play.google.com/store/apps/details?id=com.otp.otp" color="success" target="_blank" rel="noopener">
-        Download Zippy App
+        Download YoProperty App
     </x-mail::button>
 
     Thanks,<br>

@@ -66,16 +66,16 @@ class StatOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'text-white text-lg cursor-pointer',
                 ]),
-            Stat::make('Total Property Notifications', PropertyNotification::count())
-                ->icon('heroicon-o-arrow-trending-up')
-                ->description('Total number of cards')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success')
-                // ->chart([7, 2, 10, 3, 15, 4, 9])
-                // ->url(route('filament.admin.resources.deliveries.index'))
-                ->extraAttributes([
-                    'class' => 'text-white text-lg cursor-pointer',
-                ]),
+            // Stat::make('Total Property Notifications', PropertyNotification::count())
+            //     ->icon('heroicon-o-arrow-trending-up')
+            //     ->description('Total number of cards')
+            //     ->descriptionIcon('heroicon-m-arrow-trending-up')
+            //     ->color('success')
+            //     // ->chart([7, 2, 10, 3, 15, 4, 9])
+            //     // ->url(route('filament.admin.resources.deliveries.index'))
+            //     ->extraAttributes([
+            //         'class' => 'text-white text-lg cursor-pointer',
+            //     ]),
         ];
     }
 }

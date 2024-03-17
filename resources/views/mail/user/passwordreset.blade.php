@@ -23,7 +23,7 @@ Please use the following code to verify your email:
     app to continue to reset your password.
     This code will expire in 5 minutes.
 
-Thanks,<br>
+Thanks
 {{ config('app.name') }}
 </x-mail::message>
 

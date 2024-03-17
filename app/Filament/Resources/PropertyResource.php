@@ -98,8 +98,7 @@ class PropertyResource extends Resource
                                     ->options(Amenity::all()->pluck("name", "id"))
                                     ->searchable()
 
-                            ])
-                            ,
+                            ]),
 
 
                         Forms\Components\Toggle::make('is_available')
@@ -167,10 +166,9 @@ class PropertyResource extends Resource
                     ->circular(),
                 Tables\Columns\TextColumn::make('zippy_id')
                     ->searchable()
-                    ->label('Zippy Id')
+                    ->label('YoProperty Id')
                     ->copyable()
-                    ->toggleable()
-                    ->label('Zippy Id'),
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
                     ->sortable()

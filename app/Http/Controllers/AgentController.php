@@ -57,7 +57,7 @@ class AgentController extends Controller
             } catch (\Throwable $th) {
                 // throw $th;
             }
-            $message = "Hello $request->name thank you for registering with zippy as a Property Owner. Your OTP code is $otpCode.";
+            $message = "Hello $request->name thank you for registering with  YoProperty as a Property Owner. Your OTP code is $otpCode.";
             $this->sendMessage($request->phone_number, $message);
 
 
@@ -114,7 +114,7 @@ class AgentController extends Controller
                 // dd($th);
             }
 
-            $message = "Hello $request->name, your account with  Zippy  as a $role has been created. Please use the following : $password  as your one time password to login in the app 
+            $message = "Hello $request->name, your account with  YoProperty  as a $role has been created. Please use the following : $password  as your one time password to login in the app 
             If you dont have the app please contact us or download the app from the play store
             <a href='https://play.google.com/store/apps/details?id=com.otp.otp'>https://play.google.com/store/apps/details?id=com.otp.otp</a>";
 
@@ -267,7 +267,7 @@ class AgentController extends Controller
             $lastProperty = Property::latest()->first();
 
 
-            $zippy_id = 'ZPUG' . $locationPrefix . ($lastProperty ? $lastProperty->id + 1 : 1);
+            $zippy_id = 'YOPUG' . $locationPrefix . ($lastProperty ? $lastProperty->id + 1 : 1);
 
             // auto generate zippy_id
             $property = Property::create([
