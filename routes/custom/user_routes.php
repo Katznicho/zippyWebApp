@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("getUserAlerts", [UserController::class, "getUserAlerts"]);
     Route::get("getUserNotifications", [UserController::class, "getUserNotifications"]);
 
-
+    Route::post("createUserBooking", [UserController::class, "createUserBooking"]);
+    Route::get("getUserBookings", [UserController::class, "getUserBookings"]);
 });

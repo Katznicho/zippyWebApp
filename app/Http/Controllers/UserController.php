@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Models\PointUsage;
 use App\Models\PropertyNotification;
 use App\Models\User;
@@ -81,7 +82,7 @@ class UserController extends Controller
                 'address' => 'required',
             ]);
 
-             $this->zippySearchAlgorithm($request, $user);
+            $this->zippySearchAlgorithm($request, $user);
 
             $userAlert =  ZippyAlert::create([
                 'user_id' => $user_id,
@@ -190,7 +191,52 @@ class UserController extends Controller
 
             return response()->json(['success' => true, 'data' => $response]);
         } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+
+    public function createUserBooking(Request $request)
+    {
+        try {
+            $request->validate([
+                'property_id' => 'required',
+                'total_price' => 'required',
+            ]);
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+            Booking::create([
+                'user_id' => $user_id,
+                'property_id' => $request->property_id,
+                'total_price' => $request->total_price,
+            ]);
+        } catch (\Throwable $th) {
             //throw $th;
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function getUserBookings(Request $request)
+    {
+        try {
+            $limit = $request->input('limit', 100);
+            $page = $request->input('page', 1);
+            $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
+
+            $bookingQuery = Booking::where('user_id', $user_id)->with(['property', 'user']);
+
+            $bookings = $bookingQuery->paginate($limit, ['*'], 'page', $page);
+
+            $response = [
+                'data' => $bookings->items(),
+                'pagination' => [
+                    'current_page' => $bookings->currentPage(),
+                    'per_page' => $limit,
+                    'total' => $bookings->total(),
+                ],
+            ];
+
+            return response()->json(['success' => true, 'data' => $response]);
+        } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
