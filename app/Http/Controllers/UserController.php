@@ -204,11 +204,13 @@ class UserController extends Controller
                 'total_price' => 'required',
             ]);
             $user_id =  $this->getCurrentLoggedUserBySanctum()->id;
-            Booking::create([
+            $res = Booking::create([
                 'user_id' => $user_id,
                 'property_id' => $request->property_id,
                 'total_price' => $request->total_price,
             ]);
+
+            return response()->json(['success' => true, 'data' => $res, 'message' => 'Booking created successfully.']);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['success' => false, 'message' => $th->getMessage()]);

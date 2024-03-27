@@ -29,14 +29,21 @@ class BookingResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('property_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('payment_id')
-                    ->numeric(),
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->label('User Name')
+                    ->preload(),
+
+                Forms\Components\Select::make('property_id')
+                    ->relationship('property', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Property Name'),
+                Forms\Components\Select::make('payment_id')
+                    ->relationship('payment', 'status')
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\Toggle::make('is_approved')
                     ->required(),
                 Forms\Components\DatePicker::make('check_in_date')
@@ -50,7 +57,7 @@ class BookingResource extends Resource
                 Forms\Components\TextInput::make('status')
                     ->required()
                     ->maxLength(255)
-                    ->default('pending'),
+                    ->default('Pending'),
             ]);
     }
 
@@ -58,17 +65,21 @@ class BookingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
+                Tables\Columns\TextColumn::make('user.name')
+                    ->numeric()
+                    ->sortable()
+                    ->searchable()
+                    ->label('User Name'),
+                Tables\Columns\TextColumn::make('property.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('property_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('payment_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('payment.status')
+                    ->searchable()
+                    ->label('Payment Status')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_approved')
-                    ->boolean(),
+                    ->boolean()
+                    ->label('Is Approved'),
                 Tables\Columns\TextColumn::make('check_in_date')
                     ->date()
                     ->sortable(),
@@ -99,36 +110,36 @@ class BookingResource extends Resource
             ->filters([
                 // Tables\Filters\TrashedFilter::make(),
                 Filter::make('created_at')
-                ->form([
-                    DatePicker::make('created_from'),
-                    DatePicker::make('created_until'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['created_from'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                        )
-                        ->when(
-                            $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                        );
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if ($data['from'] ?? null) {
-                        $indicators[] = Indicator::make('Created from '.Carbon::parse($data['from'])->toFormattedDateString())
-                            ->removeField('from');
-                    }
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
 
-                    if ($data['until'] ?? null) {
-                        $indicators[] = Indicator::make('Created until '.Carbon::parse($data['until'])->toFormattedDateString())
-                            ->removeField('until');
-                    }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

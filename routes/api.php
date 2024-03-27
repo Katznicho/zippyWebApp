@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,4 +19,6 @@ Route::prefix('v1')->group(function () {
     include_once __DIR__ . '/custom/agent_routes.php';
     include_once __DIR__ . '/custom/property_owner_routes.php';
     include_once __DIR__ . '/custom/genearal_routes.php';
+    include_once __DIR__ . '/custom/payment_routes.php';
+    include_once __DIR__ . '/custom/notification_routes.php';
 });
